@@ -12,17 +12,25 @@ class IrbClient
 
   def run
     loop {
-      print "\e[31mCLIENT > \e[0m"
       begin
-        context = $stdin.gets.chomp
-        @socket.puts context
-        result = @socket.gets.chomp
-        puts "\e[32mSERVER > \e[0m#{result}"
+        send
+        receve
       rescue Interrupt, Errno::EPIPE, NoMethodError
         @socket.close
         exit
       end
     }
+  end
+
+  def send
+    print "\e[31mCLIENT > \e[0m"
+    context = $stdin.gets.chomp
+    @socket.puts context
+  end
+
+  def receve
+    result = @socket.gets.chomp
+    puts "\e[32mSERVER > \e[0m#{result}"
   end
 end
 

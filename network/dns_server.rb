@@ -17,22 +17,27 @@ class DnsServer
   def run
     loop {
       begin
-        recv = @server.recvfrom UDP_SOCK_SIZE
-        domain = recv[0].chomp
-        send_ip = recv[1][2]
-        send_port = recv[1][1]
-        puts "[#{send_ip}:#{send_port}] #{domain}"
-        begin
-          result = Resolv.getaddress domain
-        rescue Resolv::ResolvError
-          result = "no address for #{domain}"
+        Thread.start( @server.recvfrom UDP_SOCK_SIZE ) do | client |
+          domain = client[0].chomp
+          send_ip = client[1][2]
+          send_port = client[1][1]
+          puts "[#{send_ip}:#{send_port}] #{domain}"
+          result = resolv_domain domain
+          @server.send result, 0, send_ip, send_port
         end
-        @server.send result, 0, send_ip, send_port
       rescue Interrupt
         @server.close
         exit
       end
     }
+  end
+
+  def resolv_domain( domain )
+    begin
+      Resolv.getaddress domain
+    rescue Resolv::ResolvError
+      "no address for #{domain}"
+    end
   end
 end
 

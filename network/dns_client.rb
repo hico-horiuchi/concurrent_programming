@@ -14,16 +14,24 @@ class DnsClient
   private
 
   def run
-    print "\e[33mCLIENT > \e[0m"
     begin
-      domain = $stdin.gets.chomp
-      @socket.send domain, 0
-      result = @socket.recvfrom(UDP_SOCK_SIZE).first.chomp
-      puts "\e[34mSERVER > \e[0m#{result}"
-    rescue Interrupt, Errno::EPIPE, NoMethodError
+      send
+      receve
+    rescue Interrupt
       @socket.close
       exit
     end
+  end
+
+  def send
+    print "\e[33mCLIENT > \e[0m"
+    domain = $stdin.gets.chomp
+    @socket.send domain, 0
+  end
+
+  def receve
+    result = @socket.recvfrom(UDP_SOCK_SIZE).first.chomp
+    puts "\e[34mSERVER > \e[0m#{result}"
   end
 end
 
